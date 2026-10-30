@@ -62,9 +62,9 @@ a skipped question), packed into bytes and written as base64url. The leading
 `1` is a format version. If the questions ever change, use a new version
 number, so that old links do not decode into the wrong questions.
 
-A shared link shows every answer. So a visitor who opens one first gets a
-choice: guess first, or show the results now. A visitor who guesses first gets
-a button at the end to go back to the shared results and compare.
+A shared link opens straight to the shared results. A box at the top invites
+the visitor to take the quiz. A visitor who does gets a button at the end to go
+back to the shared results and compare.
 
 ## Storage
 

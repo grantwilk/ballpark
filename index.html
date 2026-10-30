@@ -82,6 +82,12 @@
   --truth:#D33A1F;
   --avg:#1F72B8;
   --you:#1A1B20;
+
+  /* Fireworks behind the start screen. White would vanish on paper, so the
+     light theme draws it as silver. */
+  --fw-red:#D33A1F;
+  --fw-white:#A7ABB8;
+  --fw-blue:#1F72B8;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -90,9 +96,11 @@
     --ink:#E9E9EE; --ink-inv:#15161A; --muted:#9C9FAB; --faint:#797D89;
     --bar:#3A3E48; --shadow:rgba(0,0,0,.5);
     --truth:#FF7A5E; --avg:#5EAEEC; --you:#F4F4F7;
+    --fw-red:#FF5A3C; --fw-white:#FFFFFF; --fw-blue:#4EA3F0;
   }
 }
 :root[data-theme="dark"]{
+  --fw-red:#FF5A3C; --fw-white:#FFFFFF; --fw-blue:#4EA3F0;
   --paper:#15161A; --panel:#1D1F24; --inset:#26282E;
   --grid:#2C2F36; --grid-strong:#434752;
   --ink:#E9E9EE; --ink-inv:#15161A; --muted:#9C9FAB; --faint:#797D89;
@@ -162,6 +170,10 @@ button{font:inherit;color:inherit}
 }
 .link:hover{color:var(--ink)}
 
+/* ============================ fireworks ============================ */
+#fw{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
+
 /* ============================ intro ============================ */
 .intro{padding:clamp(32px,8vh,88px) 0 48px}
 .intro h1{
@@ -175,15 +187,6 @@ button{font:inherit;color:inherit}
 }
 .intro .actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .intro .note{color:var(--muted);font-size:14.5px;margin:18px 0 0;max-width:40em}
-.teaser{
-  margin-top:clamp(36px,7vh,64px); border-top:1px solid var(--grid-strong);
-  padding-top:18px; display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
-}
-.teaser div{font-family:var(--serif);font-size:15px;color:var(--muted)}
-.teaser b{
-  display:block; font-family:var(--display); font-weight:800; font-size:13px;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--ink); margin-bottom:4px;
-}
 
 /* ============================ quiz ============================ */
 .quiz{
@@ -277,10 +280,9 @@ button{font:inherit;color:inherit}
 .results{padding:28px 0 40px}
 .results h1{
   font-family:var(--display); font-weight:800; letter-spacing:-.025em;
-  font-size:clamp(25px,4.6vw,38px); line-height:1.08; margin:8px 0 10px; max-width:24em;
+  font-size:clamp(28px,5vw,40px); line-height:1.05; margin:4px 0 16px; max-width:24em;
   text-wrap:balance;
 }
-.results .sub{font-family:var(--serif);font-size:16px;color:var(--muted);margin:0 0 22px;max-width:44em}
 
 .stats{
   display:grid; grid-template-columns:repeat(3,1fr);
@@ -293,8 +295,6 @@ button{font:inherit;color:inherit}
 .stat .v{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
 .stat .v small{font-size:15px;font-weight:700;letter-spacing:0;color:var(--muted);margin-left:3px}
 .stat .d{font-size:14.5px;color:var(--muted);line-height:1.35}
-.verdict{font-family:var(--serif);font-size:16.5px;line-height:1.55;margin:0 0 22px;max-width:46em}
-.verdict b{font-family:var(--sans);font-weight:700}
 
 .share{
   border:1.5px solid var(--grid-strong); border-radius:10px; background:var(--panel);
@@ -393,7 +393,6 @@ button{font:inherit;color:inherit}
 @media (max-width:720px){
   .brand{font-size:22px}
   .theme button{padding:6px 9px;font-size:10.5px}
-  .teaser{grid-template-columns:1fr;gap:12px}
   .intro .actions .btn{flex:1 1 100%}
   .stats{grid-template-columns:1fr}
   .stat{border-left:0;border-top:1px solid var(--grid);display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:baseline}
@@ -431,6 +430,7 @@ button{font:inherit;color:inherit}
 </style>
 </head>
 <body>
+<canvas id="fw" aria-hidden="true"></canvas>
 <div class="wrap">
   <header class="mast">
     <button class="brand" id="home" type="button" aria-label="Ballpark, go to the start">Ballpark</button>
@@ -443,20 +443,14 @@ button{font:inherit;color:inherit}
 
   <!-- ============================ intro ============================ -->
   <main id="intro" class="intro">
-    <p class="kicker" id="introKicker">45 questions · About 3 minutes</p>
+    <p class="kicker">45 questions · About 3 minutes</p>
     <h1>How well do you know <em>America?</em></h1>
-    <p class="lede">What percent of American adults are left-handed? Own a gun? Have a passport? Guess each one with a slider. At the end, see your guesses next to the average American guess and the true figure.</p>
+    <p class="lede">Guess what percent of American adults fit each group. Then see how you did.</p>
     <div class="actions">
       <button class="btn" id="start" type="button">Start guessing</button>
       <button class="btn ghost" id="skip" type="button">Skip to the results</button>
     </div>
     <p class="note" id="resumeNote" hidden></p>
-    <p class="note">The page does not show an answer until the end. Your guesses stay in this browser tab, and the page sends them nowhere.</p>
-    <div class="teaser">
-      <div><b>One at a time</b>Each group gets its own question. You can go back, or skip one.</div>
-      <div><b>No peeking</b>The questions come in a random order, so the order gives nothing away.</div>
-      <div><b>The real poll</b>The average guesses come from a YouGov poll of US adults in January 2022.</div>
-    </div>
   </main>
 
   <!-- ============================ quiz ============================ -->
@@ -499,9 +493,7 @@ button{font:inherit;color:inherit}
 
   <!-- ============================ results ============================ -->
   <main id="results" class="results" hidden>
-    <p class="kicker">The results</p>
-    <h1>Americans overestimate the size of minority groups and underestimate the size of most majority groups</h1>
-    <p class="sub">YouGov asked US adults, “If you had to guess, what percentage of American adults…” for each group below. Here are the average guess and the true figure for each one<span id="subYou">, and your own guess</span>.</p>
+    <h1 id="rhead">Your score</h1>
 
     <div class="cta" id="sharedBanner" hidden>
       <p>Someone shared their guesses with you. Can you beat them?</p>
@@ -509,11 +501,10 @@ button{font:inherit;color:inherit}
     </div>
     <div id="score">
       <div class="stats">
-        <div class="stat"><div class="k">Your average miss</div><div class="v" id="sYou">–</div><div class="d">points from the true figure</div></div>
-        <div class="stat"><div class="k">The average American's miss</div><div class="v" id="sAvg">–</div><div class="d" id="sAvgD">points, on the same questions</div></div>
+        <div class="stat"><div class="k">Your average miss</div><div class="v" id="sYou">–</div><div class="d">from the true figure</div></div>
+        <div class="stat"><div class="k">Average American's miss</div><div class="v" id="sAvg">–</div><div class="d" id="sAvgD">on the same questions</div></div>
         <div class="stat"><div class="k">Closer than average</div><div class="v" id="sBeat">–</div><div class="d" id="sBeatD">questions</div></div>
       </div>
-      <p class="verdict" id="verdict"></p>
       <div class="share" id="share">
         <div class="k">Share your results</div>
         <div class="srow">
@@ -521,7 +512,7 @@ button{font:inherit;color:inherit}
           <button class="btn" id="copy" type="button">Copy link</button>
           <button class="btn ghost" id="native" type="button" hidden>Share…</button>
         </div>
-        <p class="snote">Your guesses are packed into the link itself. The page stores them nowhere, so only people you send the link to can see them.</p>
+        <p class="snote">Your guesses live in the link itself. Nothing is stored.</p>
       </div>
     </div>
 
@@ -639,7 +630,7 @@ button{font:inherit;color:inherit}
     return a;
   }
   /* A new game keeps the link to a friend's results, so you can still compare. */
-  function fresh() { S = { order: shuffle(), i: 0, g: {}, done: false, vs: S.vs, seen: S.seen }; save(); }
+  function fresh() { S = { order: shuffle(), i: 0, g: {}, done: false, vs: S.vs }; save(); }
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -696,15 +687,92 @@ button{font:inherit;color:inherit}
   setTheme(document.documentElement.getAttribute('data-theme') || 'auto');
   themeBtns.forEach(function (b) { b.addEventListener('click', function () { setTheme(b.dataset.t); }); });
 
+  /* ============================ fireworks ============================ */
+  /* Red, white, and blue bursts behind the start screen. They run only while
+     that screen shows and the tab is visible, and not at all for readers who
+     ask for reduced motion. */
+  var fw = (function () {
+    var cv = document.getElementById('fw'), cx = cv.getContext('2d');
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var W = 0, H = 0, dpr = 1, rockets = [], sparks = [], raf = 0, last = 0, next = 0, on = false;
+    function size() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function col(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    function launch() {
+      var x = rnd(.08, .92) * W, ty = rnd(.1, .48) * H;
+      rockets.push({ x0: x + rnd(-40, 40), y0: H + 10, x: x, y: H + 10, tx: x, ty: ty, t: 0, d: rnd(700, 1050) });
+    }
+    function burst(x, y) {
+      var pal = [col('--fw-red'), col('--fw-white'), col('--fw-blue')];
+      var mixed = Math.random() < .3, one = pal[Math.floor(Math.random() * 3)];
+      var n = W < 600 ? 46 : 70, k = Math.min(W, H) / 700, sp;
+      for (var i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2 + rnd(-.08, .08);
+        sp = rnd(1.6, 4.6) * (.75 + .5 * k);
+        sparks.push({ x: x, y: y, px: x, py: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+          life: 1, fade: rnd(.011, .018), c: mixed ? pal[i % 3] : one });
+      }
+    }
+    function frame(now) {
+      var dt = Math.min(48, now - (last || now)) / 16.667; last = now;
+      if (on && now >= next) { launch(); next = now + rnd(700, 1500); }
+      cx.clearRect(0, 0, W, H);
+      cx.lineCap = 'round';
+      for (var i = rockets.length - 1; i >= 0; i--) {
+        var r = rockets[i]; r.t += dt * 16.667;
+        var p = Math.min(1, r.t / r.d), e = 1 - Math.pow(1 - p, 3);
+        var ox = r.x, oy = r.y;
+        r.x = r.x0 + (r.tx - r.x0) * e; r.y = r.y0 + (r.ty - r.y0) * e;
+        cx.globalAlpha = .7; cx.strokeStyle = col('--fw-white'); cx.lineWidth = 2;
+        cx.beginPath(); cx.moveTo(ox, oy + 6); cx.lineTo(r.x, r.y); cx.stroke();
+        if (p >= 1) { rockets.splice(i, 1); burst(r.x, r.y); }
+      }
+      cx.lineWidth = 2.2;
+      for (var j = sparks.length - 1; j >= 0; j--) {
+        var s = sparks[j];
+        s.px = s.x; s.py = s.y;
+        s.vx *= Math.pow(.975, dt); s.vy = s.vy * Math.pow(.975, dt) + .045 * dt;
+        s.x += s.vx * dt; s.y += s.vy * dt;
+        s.life -= s.fade * dt;
+        if (s.life <= 0) { sparks.splice(j, 1); continue; }
+        cx.globalAlpha = Math.max(0, s.life) * .85; cx.strokeStyle = s.c;
+        cx.beginPath(); cx.moveTo(s.px - s.vx * 1.5, s.py - s.vy * 1.5); cx.lineTo(s.x, s.y); cx.stroke();
+      }
+      cx.globalAlpha = 1;
+      if (on || rockets.length || sparks.length) raf = requestAnimationFrame(frame);
+      else { raf = 0; cx.clearRect(0, 0, W, H); }
+    }
+    function sync() {
+      var want = !still.matches && !document.hidden && !document.getElementById('intro').hidden;
+      if (want && !on) {
+        size(); on = true; last = 0;
+        var t = performance.now();
+        launch(); setTimeout(function () { if (on) launch(); }, 260); setTimeout(function () { if (on) launch(); }, 620);
+        next = t + 1300;
+        if (!raf) raf = requestAnimationFrame(frame);
+      } else if (!want) {
+        on = false;
+        if (document.hidden || still.matches) { rockets = []; sparks = []; }
+      }
+    }
+    window.addEventListener('resize', function () { if (on) size(); });
+    document.addEventListener('visibilitychange', sync);
+    if (still.addEventListener) still.addEventListener('change', sync);
+    return { sync: sync };
+  })();
+
   /* ============================ screens ============================ */
   var screens = { intro: $('intro'), quiz: $('quiz'), results: $('results') };
   var shared = null; // guesses from a share link, when one is open
-  var gate = null;   // a share code that waits for "guess first" or "show"
   var sharedCode = null;
   function show(name, push) {
     Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== name; });
     if (name !== 'results') shared = null;
-    if (push !== false) gate = null;
     var hash = name === 'intro' ? '' : '#' + name;
     if (push !== false && location.hash !== hash) {
       history.pushState(null, '', hash || location.pathname + location.search);
@@ -713,6 +781,7 @@ button{font:inherit;color:inherit}
     if (name === 'intro') renderIntro();
     if (name === 'quiz') renderQ(0);
     if (name === 'results') renderResults();
+    fw.sync();
   }
   window.addEventListener('popstate', route);
   window.addEventListener('hashchange', route);
@@ -721,19 +790,11 @@ button{font:inherit;color:inherit}
     if (h.indexOf('r=') === 0) {
       var code = h.slice(2), g = decode(code);
       if (g) {
-        /* A shared link shows the answers, so a visitor who has not played
-           first gets the choice to guess before they see anything. */
-        if (S.seen === code || S.vs === code && S.done) {
-          gate = null;
-          Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== 'results'; });
-          shared = g; sharedCode = code; window.scrollTo(0, 0); renderResults(); return;
-        }
-        gate = code; shared = null;
-        Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== 'intro'; });
-        window.scrollTo(0, 0); renderIntro(); return;
+        /* A share link opens straight to the shared results. */
+        Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== 'results'; });
+        shared = g; sharedCode = code; window.scrollTo(0, 0); renderResults(); fw.sync(); return;
       }
     }
-    gate = null;
     if (h === 'quiz' && S.order) show('quiz', false);
     else if (h === 'results') show('results', false);
     else show('intro', false);
@@ -743,13 +804,7 @@ button{font:inherit;color:inherit}
   function inProgress() { return S.order && !S.done && (S.i > 0 || answered() > 0); }
   function renderIntro() {
     var note = $('resumeNote');
-    $('introKicker').textContent = gate ? 'A friend shared their results' : '45 questions · About 3 minutes';
-    $('skip').textContent = gate ? 'Show their results now' : 'Skip to the results';
-    if (gate) {
-      $('start').textContent = 'Guess first, then compare';
-      note.hidden = false;
-      note.textContent = 'Their results show every answer. Guess first, and the answers stay hidden until the end.';
-    } else if (inProgress()) {
+    if (inProgress()) {
       $('start').textContent = 'Continue at question ' + (S.i + 1);
       note.hidden = false;
       note.innerHTML = 'You have ' + answered() + ' guesses saved in this tab. <button class="link" id="restart" type="button">Start over</button>';
@@ -760,15 +815,10 @@ button{font:inherit;color:inherit}
     }
   }
   $('start').addEventListener('click', function () {
-    var code = gate;
-    if (code || !inProgress()) fresh();
-    if (code) { S.vs = code; save(); }
+    if (!inProgress()) fresh();
     show('quiz');
   });
-  $('skip').addEventListener('click', function () {
-    if (gate) { S.seen = gate; save(); var c = gate; gate = null; history.replaceState(null, '', '#r=' + c); route(); return; }
-    show('results');
-  });
+  $('skip').addEventListener('click', function () { show('results'); });
   $('home').addEventListener('click', function () { show('intro'); });
 
   /* ============================ slider ============================ */
@@ -913,8 +963,7 @@ button{font:inherit;color:inherit}
     $('cta').hidden = has || them;
     $('sharedBanner').hidden = !them || (S.done && S.vs === sharedCode);
     $('share').hidden = them;
-    $('subYou').hidden = !has;
-    $('subYou').textContent = them ? ', and the guesses in this shared link' : ', and your own guess';
+    $('rhead').textContent = them ? 'Their score' : (has ? 'Your score' : 'How America guessed');
     $('lgYou').hidden = !has;
     $('lgYou').lastChild.textContent = them ? 'Their guess' : 'Your guess';
     $('vhYou').textContent = them ? 'Them' : 'You';
@@ -932,25 +981,10 @@ button{font:inherit;color:inherit}
       var beat = keys.filter(function (k) { return Math.abs(G[k] - DATA[k].t) < Math.abs(DATA[k].a - DATA[k].t); }).length;
       $('sYou').innerHTML = pts(mean(my)) + '<small>pts</small>';
       $('sAvg').innerHTML = pts(mean(av)) + '<small>pts</small>';
-      $('sAvgD').textContent = keys.length === N ? 'points, on the same questions' : 'points, on the ' + keys.length + ' questions ' + (them ? 'they' : 'you') + ' answered';
+      $('sAvgD').textContent = 'on the same questions';
       $('sBeat').innerHTML = beat + '<small>of ' + keys.length + '</small>';
-      $('sBeatD').textContent = (them ? 'questions where their guess' : 'questions where your guess') + ' beat the average guess';
+      $('sBeatD').textContent = them ? 'times they beat the average' : 'times you beat the average';
 
-      /* The pattern YouGov found: small groups guessed too big, large groups too small. */
-      var small = keys.filter(function (k) { return DATA[k].t < 50; });
-      var large = keys.filter(function (k) { return DATA[k].t >= 50; });
-      var parts = [];
-      function bias(set) { return mean(set.map(function (k) { return G[k] - DATA[k].t; })); }
-      function word(b) { return b >= 0 ? 'too high' : 'too low'; }
-      if (small.length) { var bs = bias(small); parts.push('For groups under half the country, ' + (them ? 'their' : 'your') + ' guesses were <b>' + pts(Math.abs(bs)) + ' points ' + word(bs) + '</b> on average'); }
-      if (large.length) { var bl = bias(large); parts.push('for groups over half, <b>' + pts(Math.abs(bl)) + ' points ' + word(bl) + '</b>'); }
-      var best = keys.slice().sort(function (x, y) { return Math.abs(G[x] - DATA[x].t) - Math.abs(G[y] - DATA[y].t); });
-      var b0 = best[0], w0 = best[best.length - 1];
-      var txt = parts.length ? parts.join(', and ') + '. ' : '';
-      if (parts.length === 1) txt = parts[0] + '. ';
-      txt += (them ? 'Their' : 'Your') + ' closest guess: adults who ' + DATA[b0].q + ' (' + (them ? 'they' : 'you') + ' said ' + G[b0] + '%, true ' + fmt(DATA[b0].t) + '%). ';
-      if (w0 !== b0) txt += (them ? 'Their' : 'Your') + ' furthest: adults who ' + DATA[w0].q + ' (' + (them ? 'they' : 'you') + ' said ' + G[w0] + '%, true ' + fmt(DATA[w0].t) + '%).';
-      $('verdict').innerHTML = txt.charAt(0).toUpperCase() + txt.slice(1);
     }
     drawRows();
   }
@@ -992,11 +1026,11 @@ button{font:inherit;color:inherit}
   $('ctaStart').addEventListener('click', startOver);
   $('sharedStart').addEventListener('click', function () {
     var c = location.hash.indexOf('#r=') === 0 ? location.hash.slice(3) : null;
-    fresh(); if (c) { S.vs = c; S.seen = c; save(); }
+    fresh(); if (c) { S.vs = c; save(); }
     show('quiz');
   });
   $('compare').addEventListener('click', function () {
-    S.seen = S.vs; save(); location.hash = 'r=' + S.vs;
+    location.hash = 'r=' + S.vs;
   });
 
   /* ============================ share buttons ============================ */
