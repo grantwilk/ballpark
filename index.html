@@ -175,7 +175,15 @@ button{font:inherit;color:inherit}
 .wrap{position:relative;z-index:1}
 
 /* ============================ intro ============================ */
-.intro{padding:clamp(32px,8vh,88px) 0 48px}
+/* The start screen fills the window below the masthead, with its content
+   centered, so the source notes sit below the fold. --mast-h is measured
+   in script. */
+.intro{
+  min-height:calc(100vh - var(--mast-h,62px));
+  min-height:calc(100dvh - var(--mast-h,62px));
+  display:flex; flex-direction:column; justify-content:center;
+  padding:24px 0 32px;
+}
 .intro h1{
   font-family:var(--display); font-weight:800; letter-spacing:-.035em;
   font-size:clamp(46px,11vw,96px); line-height:.92; margin:12px 0 18px;
@@ -415,7 +423,7 @@ button{font:inherit;color:inherit}
   .srow .btn{flex:1 1 0}
 }
 @media (max-height:640px){
-  .intro{padding-top:20px}
+  .intro{padding-block:16px}
   .intro h1{font-size:40px;margin:8px 0 12px}
   .intro .lede{font-size:16px;margin-bottom:18px}
   .intro .actions{gap:8px}
@@ -694,7 +702,7 @@ button{font:inherit;color:inherit}
   var fw = (function () {
     var cv = document.getElementById('fw'), cx = cv.getContext('2d');
     var still = window.matchMedia('(prefers-reduced-motion: reduce)');
-    var W = 0, H = 0, dpr = 1, rockets = [], sparks = [], raf = 0, last = 0, next = 0, on = false;
+    var W = 0, H = 0, dpr = 1, rockets = [], sparks = [], raf = 0, last = 0, on = false, played = false, pending = 0;
     function size() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = window.innerWidth; H = window.innerHeight;
@@ -720,7 +728,6 @@ button{font:inherit;color:inherit}
     }
     function frame(now) {
       var dt = Math.min(48, now - (last || now)) / 16.667; last = now;
-      if (on && now >= next) { launch(); next = now + rnd(700, 1500); }
       cx.clearRect(0, 0, W, H);
       cx.lineCap = 'round';
       for (var i = rockets.length - 1; i >= 0; i--) {
@@ -744,26 +751,37 @@ button{font:inherit;color:inherit}
         cx.beginPath(); cx.moveTo(s.px - s.vx * 1.5, s.py - s.vy * 1.5); cx.lineTo(s.x, s.y); cx.stroke();
       }
       cx.globalAlpha = 1;
-      if (on || rockets.length || sparks.length) raf = requestAnimationFrame(frame);
+      if (pending || rockets.length || sparks.length) raf = requestAnimationFrame(frame);
       else { raf = 0; cx.clearRect(0, 0, W, H); }
     }
+    /* One short show of 3 to 5 bursts, the first time the start screen
+       shows after the page loads. Then it stops for good. */
     function sync() {
       var want = !still.matches && !document.hidden && !document.getElementById('intro').hidden;
-      if (want && !on) {
-        size(); on = true; last = 0;
-        var t = performance.now();
-        launch(); setTimeout(function () { if (on) launch(); }, 260); setTimeout(function () { if (on) launch(); }, 620);
-        next = t + 1300;
+      on = want;
+      if (want && !played) {
+        played = true; size(); last = 0;
+        var times = [0, 320, 700, 1050, 1400].slice(0, 3 + Math.floor(Math.random() * 3));
+        pending = times.length;
+        times.forEach(function (ms) {
+          setTimeout(function () { pending--; if (on) launch(); }, ms);
+        });
         if (!raf) raf = requestAnimationFrame(frame);
-      } else if (!want) {
-        on = false;
-        if (document.hidden || still.matches) { rockets = []; sparks = []; }
+      } else if (!want && (document.hidden || still.matches)) {
+        rockets = []; sparks = [];
       }
     }
     window.addEventListener('resize', function () { if (on) size(); });
     document.addEventListener('visibilitychange', sync);
     if (still.addEventListener) still.addEventListener('change', sync);
     return { sync: sync };
+  })();
+
+  (function mastHeight() {
+    var m = document.querySelector('.mast');
+    function set() { document.documentElement.style.setProperty('--mast-h', m.offsetHeight + 'px'); }
+    set(); window.addEventListener('resize', set);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(set);
   })();
 
   /* ============================ screens ============================ */
