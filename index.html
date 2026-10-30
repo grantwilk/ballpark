@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ballpark — How Well Do You Know America?</title>
+<meta name="description" content="Guess what percent of American adults are left-handed, own a gun, or have a passport. Then see your guesses next to the average American guess and the true figure.">
+<link rel="canonical" href="https://grantwilk.com/ballpark/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F0EFEA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15161A" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grantwilk.com/ballpark/">
+<meta property="og:site_name" content="Ballpark">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Ballpark — How Well Do You Know America?">
+<meta property="og:description" content="Guess the size of 45 groups of American adults. Then see your guesses next to the average American guess and the true figure.">
+<meta property="og:image" content="https://grantwilk.com/ballpark/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ballpark — How Well Do You Know America?">
+<meta name="twitter:description" content="Guess the size of 45 groups of American adults. Then see how close you came.">
+<meta name="twitter:image" content="https://grantwilk.com/ballpark/social-card.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Ballpark",
+  "url": "https://grantwilk.com/ballpark/",
+  "description": "Guess the size of 45 groups of American adults, then compare your guesses with the average American guess and the true figure.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any web browser",
+  "browserRequirements": "Requires JavaScript",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Grant Wilk", "url": "https://grantwilk.com/" }
+}
+</script>
+<script>
+  /* Runs before first paint so the page never flashes the wrong theme. */
+  (function () {
+    try {
+      var t = localStorage.getItem('bp.theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Barlow+Semi+Condensed:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&display=swap" rel="stylesheet">
+<style>
+/* ============================ tokens ============================ */
+/* Same three theme states as Tax Slider. No data-theme attribute means
+   "follow the system". The explicit dark block stays last so a manual
+   choice beats the system. */
+:root{
+  --sans:"Barlow Semi Condensed",system-ui,-apple-system,sans-serif;
+  --display:"Archivo",system-ui,-apple-system,sans-serif;
+  --serif:"Source Serif 4",Georgia,serif;
+
+  --paper:#F0EFEA;
+  --panel:#F9F8F4;
+  --inset:#FFFFFF;
+  --grid:#DEDCD3;
+  --grid-strong:#C7C4B8;
+  --ink:#1A1B20;
+  --ink-inv:#FFFFFF;
+  --muted:#63636E;
+  --faint:#8D8D96;
+  --bar:#D3D1C8;
+  --shadow:rgba(26,27,32,.16);
+
+  /* The three series. Truth and the average keep the red and blue of the
+     original YouGov chart, so the chart reads the same as the one people
+     have seen. "You" is ink, and a diamond, so it never reads as a third
+     poll series. */
+  --truth:#D33A1F;
+  --avg:#1F72B8;
+  --you:#1A1B20;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15161A; --panel:#1D1F24; --inset:#26282E;
+    --grid:#2C2F36; --grid-strong:#434752;
+    --ink:#E9E9EE; --ink-inv:#15161A; --muted:#9C9FAB; --faint:#797D89;
+    --bar:#3A3E48; --shadow:rgba(0,0,0,.5);
+    --truth:#FF7A5E; --avg:#5EAEEC; --you:#F4F4F7;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15161A; --panel:#1D1F24; --inset:#26282E;
+  --grid:#2C2F36; --grid-strong:#434752;
+  --ink:#E9E9EE; --ink-inv:#15161A; --muted:#9C9FAB; --faint:#797D89;
+  --bar:#3A3E48; --shadow:rgba(0,0,0,.5);
+  --truth:#FF7A5E; --avg:#5EAEEC; --you:#F4F4F7;
+}
+
+/* ============================ base ============================ */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.wrap{
+  max-width:1080px; margin:0 auto;
+  padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left));
+}
+:focus-visible{outline:3px solid var(--avg);outline-offset:2px;border-radius:4px}
+
+/* ============================ masthead ============================ */
+.mast{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:18px 0 14px; border-bottom:2px solid var(--ink);
+}
+.brand{
+  font-family:var(--display); font-weight:800; letter-spacing:-.02em;
+  font-size:26px; line-height:1; text-transform:uppercase; margin:0;
+  background:none; border:0; padding:0; cursor:pointer;
+}
+.theme{
+  display:inline-flex; border:1.5px solid var(--grid-strong); border-radius:999px;
+  overflow:hidden; flex:none;
+}
+.theme button{
+  font-family:var(--display); font-weight:700; font-size:11.5px; letter-spacing:.09em;
+  text-transform:uppercase; border:0; background:none; color:var(--muted);
+  padding:7px 11px; cursor:pointer; min-height:32px;
+}
+.theme button[aria-pressed="true"]{background:var(--ink);color:var(--ink-inv)}
+
+/* ============================ shared bits ============================ */
+.kicker{
+  font-family:var(--display); font-weight:700; font-size:12.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:0;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--display); font-weight:700; font-size:16px;
+  border-radius:8px; padding:14px 22px; min-height:52px; cursor:pointer;
+  border:1.5px solid var(--ink); background:var(--ink); color:var(--ink-inv);
+  transition:transform .08s ease, opacity .15s ease;
+  text-decoration:none;
+}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--grid-strong)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.link{
+  background:none; border:0; padding:8px 4px; cursor:pointer;
+  font-family:var(--display); font-weight:700; font-size:13px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+  min-height:40px;
+}
+.link:hover{color:var(--ink)}
+
+/* ============================ intro ============================ */
+.intro{padding:clamp(32px,8vh,88px) 0 48px}
+.intro h1{
+  font-family:var(--display); font-weight:800; letter-spacing:-.035em;
+  font-size:clamp(46px,11vw,96px); line-height:.92; margin:12px 0 18px;
+}
+.intro h1 em{font-style:normal;color:var(--truth)}
+.intro .lede{
+  font-family:var(--serif); font-size:clamp(17px,2.4vw,20px); line-height:1.55;
+  max-width:36em; margin:0 0 28px;
+}
+.intro .actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.intro .note{color:var(--muted);font-size:14.5px;margin:18px 0 0;max-width:40em}
+.teaser{
+  margin-top:clamp(36px,7vh,64px); border-top:1px solid var(--grid-strong);
+  padding-top:18px; display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
+}
+.teaser div{font-family:var(--serif);font-size:15px;color:var(--muted)}
+.teaser b{
+  display:block; font-family:var(--display); font-weight:800; font-size:13px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink); margin-bottom:4px;
+}
+
+/* ============================ quiz ============================ */
+.quiz{
+  display:flex; flex-direction:column;
+  min-height:calc(100dvh - 64px);
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));
+  max-width:680px; margin:0 auto;
+}
+.qtop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.qcount{
+  font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.06em;
+  font-variant-numeric:tabular-nums;
+}
+.progress{height:4px;background:var(--grid);border-radius:4px;overflow:hidden;margin:6px 0 0}
+.progress i{display:block;height:100%;background:var(--ink);width:0;transition:width .3s ease}
+
+.qbody{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(20px,5vh,56px) 0}
+.qcard{will-change:transform,opacity}
+.qcard.out{animation:out .16s ease forwards}
+.qcard.in{animation:in .22s ease}
+.qcard.back.out{animation-name:outback}
+.qcard.back.in{animation-name:inback}
+@keyframes out{to{opacity:0;transform:translateX(-24px)}}
+@keyframes in{from{opacity:0;transform:translateX(24px)}}
+@keyframes outback{to{opacity:0;transform:translateX(24px)}}
+@keyframes inback{from{opacity:0;transform:translateX(-24px)}}
+
+.qtext{
+  font-family:var(--display); font-weight:800; letter-spacing:-.02em;
+  font-size:clamp(28px,6.4vw,44px); line-height:1.08; margin:10px 0 0;
+  min-height:2.16em; text-wrap:balance;
+}
+
+.readout{
+  display:flex; align-items:center; justify-content:center; gap:clamp(14px,4vw,28px);
+  margin:clamp(22px,5vh,44px) 0 clamp(14px,3vh,24px);
+}
+.num{
+  font-family:var(--display); font-weight:800; letter-spacing:-.04em;
+  font-size:clamp(64px,17vw,104px); line-height:1; min-width:3.1ch; text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.num small{font-size:.45em;letter-spacing:0;margin-left:.04em;vertical-align:.62em}
+.num.blank{color:var(--faint)}
+.step{
+  width:52px;height:52px;border-radius:50%;flex:none;
+  border:1.5px solid var(--grid-strong); background:var(--panel);
+  font-family:var(--display); font-weight:700; font-size:26px; line-height:1;
+  cursor:pointer; display:grid; place-items:center;
+}
+.step:active{background:var(--grid)}
+
+/* The slider is built by hand. A native range input does not jump to a tap on
+   the track in iOS Safari, which makes a 0 to 100 guess painful on a phone. */
+.slider{
+  position:relative; height:56px; margin:0 14px; cursor:pointer;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+}
+.slider .track{
+  position:absolute; left:0; right:0; top:50%; height:10px; margin-top:-5px;
+  background:var(--grid); border-radius:6px;
+}
+.slider .fill{
+  position:absolute; left:0; top:50%; height:10px; margin-top:-5px;
+  background:var(--ink); border-radius:6px; width:0;
+}
+.slider .thumb{
+  position:absolute; top:50%; width:34px; height:34px; margin:-17px 0 0 -17px;
+  border-radius:50%; background:var(--ink); border:4px solid var(--paper);
+  box-shadow:0 2px 8px var(--shadow); left:50%;
+  transition:transform .1s ease;
+}
+.slider.drag .thumb{transform:scale(1.12)}
+.slider.blank .fill{opacity:0}
+.slider.blank .thumb{background:var(--panel);border:2px dashed var(--grid-strong);box-shadow:none}
+.slider:focus-visible{outline-offset:6px}
+.ticks{
+  position:relative; height:20px; margin:2px 14px 0;
+  color:var(--muted); font-size:14px; font-variant-numeric:tabular-nums;
+}
+.ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.hint{
+  text-align:center; color:var(--muted); font-size:15px; margin:14px 0 0; min-height:22px;
+}
+
+.qnav{display:flex;gap:10px;align-items:center}
+.qnav .btn{flex:1}
+.qnav .btn.ghost{flex:0 0 auto}
+
+/* ============================ results ============================ */
+.results{padding:28px 0 40px}
+.results h1{
+  font-family:var(--display); font-weight:800; letter-spacing:-.025em;
+  font-size:clamp(25px,4.6vw,38px); line-height:1.08; margin:8px 0 10px; max-width:24em;
+  text-wrap:balance;
+}
+.results .sub{font-family:var(--serif);font-size:16px;color:var(--muted);margin:0 0 22px;max-width:44em}
+
+.stats{
+  display:grid; grid-template-columns:repeat(3,1fr);
+  border:1.5px solid var(--grid-strong); border-radius:10px; background:var(--panel);
+  overflow:hidden; margin:0 0 14px;
+}
+.stat{padding:14px 16px;border-left:1px solid var(--grid)}
+.stat:first-child{border-left:0}
+.stat .k{font-family:var(--display);font-weight:700;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:15px;font-weight:700;letter-spacing:0;color:var(--muted);margin-left:3px}
+.stat .d{font-size:14.5px;color:var(--muted);line-height:1.35}
+.verdict{font-family:var(--serif);font-size:16.5px;line-height:1.55;margin:0 0 22px;max-width:46em}
+.verdict b{font-family:var(--sans);font-weight:700}
+
+.share{
+  border:1.5px solid var(--grid-strong); border-radius:10px; background:var(--panel);
+  padding:14px 16px; margin:0 0 22px;
+}
+.share .k{font-family:var(--display);font-weight:700;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.srow{display:flex;gap:8px;flex-wrap:wrap}
+.srow input{
+  flex:1 1 260px; min-width:0; min-height:52px; border-radius:8px;
+  border:1.5px solid var(--grid-strong); background:var(--inset); color:var(--ink);
+  font:500 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace; padding:0 12px;
+}
+.srow .btn{flex:0 0 auto}
+.btn.ok{background:var(--avg);border-color:var(--avg);color:#fff}
+.snote{margin:8px 0 0;font-size:14px;color:var(--muted)}
+.cta{
+  border:1.5px solid var(--grid-strong); border-radius:10px; background:var(--panel);
+  padding:16px; display:flex; gap:14px; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; margin:0 0 22px;
+}
+.cta p{margin:0;font-family:var(--serif);font-size:16px;max-width:34em}
+
+.chart{
+  border:1.5px solid var(--grid-strong); border-radius:10px; background:var(--panel);
+  --label-w:280px; --val-w:132px;
+}
+.chead{
+  position:sticky; top:0; z-index:10; background:var(--panel);
+  border-bottom:1px solid var(--grid-strong); border-radius:10px 10px 0 0;
+  padding:10px 16px 0;
+}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14.5px;font-weight:600}
+.legend .sw{display:inline-flex;align-items:center;gap:7px}
+.sortby{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)}
+.sortby button{
+  border:1px solid var(--grid-strong); background:none; border-radius:999px;
+  padding:4px 10px; font-family:var(--display); font-weight:700; font-size:11.5px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--muted); cursor:pointer; min-height:30px;
+}
+.sortby button[aria-pressed="true"]{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
+
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%}
+.dot.truth{background:var(--truth)}
+.dot.avg{background:var(--avg)}
+.dia{display:inline-block;width:11px;height:11px;background:var(--you);transform:rotate(45deg);border-radius:1.5px}
+
+.axis{
+  display:grid; grid-template-columns:var(--label-w) 1fr var(--val-w);
+  margin-top:8px; height:22px;
+}
+.axis .scale{position:relative;margin:0 8px}
+.axis .scale span{
+  position:absolute; transform:translateX(-50%); font-size:12px; color:var(--faint);
+  font-variant-numeric:tabular-nums; top:2px;
+}
+.axis .vh{display:flex;justify-content:flex-end;gap:0;font-size:11px;font-family:var(--display);font-weight:700;letter-spacing:.06em;color:var(--faint);text-transform:uppercase}
+.axis .vh span{width:38px;text-align:right}
+
+.rows{list-style:none;margin:0;padding:4px 16px 10px}
+.row{
+  display:grid; grid-template-columns:var(--label-w) 1fr var(--val-w);
+  align-items:center; min-height:32px;
+}
+.row + .row{border-top:1px dotted var(--grid)}
+.row .lab{font-size:15px;line-height:1.2;padding:6px 12px 6px 0;text-align:right}
+.lane{
+  position:relative; height:28px; margin:0 8px; isolation:isolate;
+  background-image:repeating-linear-gradient(90deg,var(--grid) 0 1px,transparent 1px 10%);
+  background-size:100% 100%;
+}
+.lane::after{content:"";position:absolute;right:-1px;top:0;bottom:0;width:1px;background:var(--grid)}
+.lane .gap{position:absolute;top:50%;height:6px;margin-top:-3px;background:var(--bar);border-radius:3px}
+.lane .m{position:absolute;top:50%}
+.lane .m.truth,.lane .m.avg{width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;border:1.5px solid var(--panel)}
+.lane .m.truth{background:var(--truth);z-index:2}
+.lane .m.avg{background:var(--avg);z-index:1}
+.lane .m.you{
+  width:12px;height:12px;margin:-6px 0 0 -6px;background:var(--you);z-index:3;
+  transform:rotate(45deg);border-radius:1.5px;box-shadow:0 0 0 1.5px var(--panel);
+}
+.vals{display:flex;justify-content:flex-end;font-variant-numeric:tabular-nums;font-weight:700;font-size:14.5px}
+.vals span{width:38px;text-align:right}
+.vals .you{color:var(--you)}
+.vals .avg{color:var(--avg)}
+.vals .truth{color:var(--truth)}
+.vals .none{color:var(--faint);font-weight:400}
+
+.again{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 0}
+
+/* ============================ footer ============================ */
+.foot{border-top:1px solid var(--grid-strong);margin-top:40px;padding:18px 0 max(28px,env(safe-area-inset-bottom));color:var(--muted);font-size:14px}
+.foot p{margin:0 0 8px;max-width:62em}
+.foot a{color:inherit}
+
+/* ============================ phone ============================ */
+@media (max-width:720px){
+  .brand{font-size:22px}
+  .theme button{padding:6px 9px;font-size:10.5px}
+  .teaser{grid-template-columns:1fr;gap:12px}
+  .intro .actions .btn{flex:1 1 100%}
+  .stats{grid-template-columns:1fr}
+  .stat{border-left:0;border-top:1px solid var(--grid);display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:baseline}
+  .stat:first-child{border-top:0}
+  .stat .v{grid-row:span 2;grid-column:2;margin:0;text-align:right}
+  .chart{--label-w:0px;--val-w:0px}
+  .chead{padding:8px 12px 0}
+  .sortby button{min-height:28px;padding:3px 9px}
+  .legend{font-size:13.5px;gap:6px 14px}
+  .sortby{margin-left:0;width:100%}
+  .axis{grid-template-columns:1fr}
+  .axis .vh,.axis .lpad{display:none}
+  .rows{padding:2px 12px 8px}
+  .row{grid-template-columns:1fr auto;grid-template-areas:"lab vals" "lane lane";padding:8px 0 4px}
+  .row .lab{grid-area:lab;text-align:left;padding:0 8px 2px 0;font-size:14.5px}
+  .row .vals{grid-area:vals;font-size:13.5px}
+  .row .vals span{width:32px}
+  .lane{grid-area:lane;height:24px}
+  .qnav .btn{padding:14px 16px}
+  .srow .btn{flex:1 1 0}
+}
+@media (max-height:640px){
+  .intro{padding-top:20px}
+  .intro h1{font-size:40px;margin:8px 0 12px}
+  .intro .lede{font-size:16px;margin-bottom:18px}
+  .intro .actions{gap:8px}
+  .quiz .qbody{padding:12px 0}
+  .readout{margin:14px 0 8px}
+  .num{font-size:60px}
+}
+@media (prefers-reduced-motion:reduce){
+  .qcard.out,.qcard.in{animation:none!important}
+  .progress i{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <button class="brand" id="home" type="button" aria-label="Ballpark, go to the start">Ballpark</button>
+    <div class="theme" role="group" aria-label="Theme">
+      <button type="button" data-t="light" aria-pressed="false">Light</button>
+      <button type="button" data-t="auto" aria-pressed="true">Auto</button>
+      <button type="button" data-t="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <!-- ============================ intro ============================ -->
+  <main id="intro" class="intro">
+    <p class="kicker" id="introKicker">45 questions · About 3 minutes</p>
+    <h1>How well do you know <em>America?</em></h1>
+    <p class="lede">What percent of American adults are left-handed? Own a gun? Have a passport? Guess each one with a slider. At the end, see your guesses next to the average American guess and the true figure.</p>
+    <div class="actions">
+      <button class="btn" id="start" type="button">Start guessing</button>
+      <button class="btn ghost" id="skip" type="button">Skip to the results</button>
+    </div>
+    <p class="note" id="resumeNote" hidden></p>
+    <p class="note">The page does not show an answer until the end. Your guesses stay in this browser tab, and the page sends them nowhere.</p>
+    <div class="teaser">
+      <div><b>One at a time</b>Each group gets its own question. You can go back, or skip one.</div>
+      <div><b>No peeking</b>The questions come in a random order, so the order gives nothing away.</div>
+      <div><b>The real poll</b>The average guesses come from a YouGov poll of US adults in January 2022.</div>
+    </div>
+  </main>
+
+  <!-- ============================ quiz ============================ -->
+  <main id="quiz" class="quiz" hidden>
+    <div class="qtop">
+      <button class="link" id="back" type="button">← Back</button>
+      <span class="qcount" id="count" aria-live="polite">1 / 45</span>
+      <button class="link" id="finish" type="button">Results →</button>
+    </div>
+    <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+    <div class="qbody">
+      <div class="qcard" id="card">
+        <p class="kicker" id="qlead">What percent of American adults</p>
+        <h2 class="qtext" id="qtext">are left-handed?</h2>
+
+        <div class="readout">
+          <button class="step" id="minus" type="button" aria-label="Guess one percent less">−</button>
+          <div class="num blank" id="num" aria-hidden="true">?</div>
+          <button class="step" id="plus" type="button" aria-label="Guess one percent more">+</button>
+        </div>
+
+        <div class="slider blank" id="slider" role="slider" tabindex="0"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+             aria-valuetext="No guess yet" aria-labelledby="qlead qtext">
+          <div class="track"></div>
+          <div class="fill" id="fill"></div>
+          <div class="thumb" id="thumb"></div>
+        </div>
+        <div class="ticks" aria-hidden="true"><span style="left:0">0%</span><span style="left:25%">25%</span><span style="left:50%">50%</span><span style="left:75%">75%</span><span style="left:100%">100%</span></div>
+        <p class="hint" id="hint">Tap or drag the slider to guess.</p>
+      </div>
+    </div>
+
+    <div class="qnav">
+      <button class="btn ghost" id="pass" type="button">Skip</button>
+      <button class="btn" id="next" type="button" disabled>Next →</button>
+    </div>
+  </main>
+
+  <!-- ============================ results ============================ -->
+  <main id="results" class="results" hidden>
+    <p class="kicker">The results</p>
+    <h1>Americans overestimate the size of minority groups and underestimate the size of most majority groups</h1>
+    <p class="sub">YouGov asked US adults, “If you had to guess, what percentage of American adults…” for each group below. Here are the average guess and the true figure for each one<span id="subYou">, and your own guess</span>.</p>
+
+    <div class="cta" id="sharedBanner" hidden>
+      <p>Someone shared their guesses with you. Can you beat them?</p>
+      <button class="btn" id="sharedStart" type="button">Take the quiz</button>
+    </div>
+    <div id="score">
+      <div class="stats">
+        <div class="stat"><div class="k">Your average miss</div><div class="v" id="sYou">–</div><div class="d">points from the true figure</div></div>
+        <div class="stat"><div class="k">The average American's miss</div><div class="v" id="sAvg">–</div><div class="d" id="sAvgD">points, on the same questions</div></div>
+        <div class="stat"><div class="k">Closer than average</div><div class="v" id="sBeat">–</div><div class="d" id="sBeatD">questions</div></div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+      <div class="share" id="share">
+        <div class="k">Share your results</div>
+        <div class="srow">
+          <input id="shareUrl" type="text" readonly aria-label="Link to your results" spellcheck="false">
+          <button class="btn" id="copy" type="button">Copy link</button>
+          <button class="btn ghost" id="native" type="button" hidden>Share…</button>
+        </div>
+        <p class="snote">Your guesses are packed into the link itself. The page stores them nowhere, so only people you send the link to can see them.</p>
+      </div>
+    </div>
+
+
+    <div class="cta" id="cta" hidden>
+      <p>You have not guessed yet. Take the quiz to put your own guesses on this chart.</p>
+      <button class="btn" id="ctaStart" type="button">Start guessing</button>
+    </div>
+
+    <section class="chart" aria-label="Chart of each group: your guess, the average guess, and the true figure">
+      <div class="chead">
+        <div class="legend">
+          <span class="sw" id="lgYou"><i class="dia"></i>Your guess</span>
+          <span class="sw"><i class="dot avg"></i>Average guess</span>
+          <span class="sw"><i class="dot truth"></i>True figure</span>
+          <span class="sortby" id="sortby">Sort:
+            <button type="button" data-s="truth" aria-pressed="true">True size</button>
+            <button type="button" data-s="miss" aria-pressed="false">Your miss</button>
+          </span>
+        </div>
+        <div class="axis" aria-hidden="true">
+          <div class="lpad"></div>
+          <div class="scale" id="scale"></div>
+          <div class="vh"><span id="vhYou">You</span><span>Avg</span><span>True</span></div>
+        </div>
+      </div>
+      <ul class="rows" id="rows"></ul>
+    </section>
+
+    <div class="again">
+      <button class="btn" id="retake" type="button">Take it again</button>
+      <button class="btn ghost" id="compare" type="button" hidden>See your friend's results</button>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p>Source: <a href="https://yougov.com/en-us/articles/41556-americans-misestimate-small-subgroups-population" rel="noopener">YouGov, “From millionaires to Muslims, small subgroups of the population seem much larger to many Americans,”</a> March 15, 2022. The poll ran January 14 to 20, 2022, with US adult citizens. An average guess is the weighted mean of all answers, rounded to the nearest whole percent.</p>
+    <p>YouGov drew the true figures from the US Census Bureau, the Bureau of Labor Statistics, and polls by YouGov and other firms. Most figures are from 2019 to 2021, so some have changed since then. The true figure for transgender adults is 0.6%; the original chart rounds it to 1%.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================ data ============================ */
+  /* Transcribed from the YouGov chart (Datawrapper gwI93) and checked against
+     the article text. q completes "What percent of American adults ...".
+     t is the true figure, a is the average guess. Keep the chart's order. */
+  var DATA = [
+    { q: 'have a household income over $1 million',  t: 0,   a: 20 },
+    { q: 'are transgender',                           t: 0.6, a: 21 },
+    { q: 'have a household income over $500,000',    t: 1,   a: 26 },
+    { q: 'are Muslim',                                t: 1,   a: 27 },
+    { q: 'are Native American',                       t: 1,   a: 27 },
+    { q: 'are Jewish',                                t: 2,   a: 30 },
+    { q: 'live in New York City',                     t: 3,   a: 30 },
+    { q: 'are gay or lesbian',                        t: 3,   a: 30 },
+    { q: 'are atheists',                              t: 3,   a: 33 },
+    { q: 'are bisexual',                              t: 4,   a: 29 },
+    { q: 'are members of a union',                    t: 4,   a: 36 },
+    { q: 'are vegan or vegetarian',                   t: 5,   a: 30 },
+    { q: 'are Asian',                                 t: 6,   a: 29 },
+    { q: 'are a military veteran',                    t: 6,   a: 40 },
+    { q: 'live in Texas',                             t: 9,   a: 30 },
+    { q: 'are left-handed',                           t: 11,  a: 34 },
+    { q: 'live in California',                        t: 12,  a: 32 },
+    { q: 'are Black',                                 t: 12,  a: 41 },
+    { q: 'have an advanced degree',                   t: 12,  a: 37 },
+    { q: 'are first-generation immigrants',           t: 14,  a: 33 },
+    { q: 'are Hispanic',                              t: 17,  a: 39 },
+    { q: 'are Catholic',                              t: 22,  a: 41 },
+    { q: 'own a gun',                                 t: 32,  a: 54 },
+    { q: 'have at least a college degree',            t: 33,  a: 47 },
+    { q: 'have a household income over $100,000',    t: 34,  a: 38 },
+    { q: 'have a passport',                           t: 37,  a: 45 },
+    { q: 'are Democrats',                             t: 42,  a: 51 },
+    { q: 'are obese',                                 t: 42,  a: 56 },
+    { q: 'are Republicans',                           t: 47,  a: 50 },
+    { q: 'are married',                               t: 51,  a: 55 },
+    { q: 'have at least one child',                   t: 57,  a: 58 },
+    { q: 'voted in the 2020 election',                t: 62,  a: 61 },
+    { q: 'have a household income over $50,000',     t: 62,  a: 50 },
+    { q: 'are white',                                 t: 64,  a: 59 },
+    { q: 'own a house',                               t: 65,  a: 49 },
+    { q: 'are fully vaccinated against COVID-19',     t: 66,  a: 59 },
+    { q: 'have a pet',                                t: 67,  a: 62 },
+    { q: 'are Christian',                             t: 70,  a: 58 },
+    { q: 'have read a book in the past year',         t: 77,  a: 50 },
+    { q: 'have a household income over $25,000',     t: 82,  a: 62 },
+    { q: "have a driver's license",                   t: 83,  a: 68 },
+    { q: 'own a smartphone',                          t: 85,  a: 76 },
+    { q: 'have flown on a plane',                     t: 88,  a: 59 },
+    { q: 'own a car',                                 t: 88,  a: 66 },
+    { q: 'have at least a high school degree',        t: 89,  a: 65 }
+  ];
+  var N = DATA.length;
+  function label(d) { return d.q.charAt(0).toUpperCase() + d.q.slice(1); }
+  function fmt(v) { return (v > 0 && v < 1) ? String(v) : String(Math.round(v)); }
+
+  /* ============================ state ============================ */
+  /* Guesses live in sessionStorage: they survive a reload, and they go away
+     when the tab closes. Nothing leaves the browser. */
+  var KEY = 'bp.state';
+  var S = { order: null, i: 0, g: {}, done: false };
+  try { var raw = sessionStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+  function save() { try { sessionStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function answered() { return Object.keys(S.g).length; }
+
+  function shuffle() {
+    var a = DATA.map(function (_, i) { return i; });
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  /* A new game keeps the link to a friend's results, so you can still compare. */
+  function fresh() { S = { order: shuffle(), i: 0, g: {}, done: false, vs: S.vs, seen: S.seen }; save(); }
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ============================ share codes ============================ */
+  /* A share link carries the guesses in the URL fragment (#r=...). The
+     fragment is never sent to a server, so GitHub Pages never sees it, and
+     nothing is stored anywhere. Each guess is 7 bits (0-100, or 127 for a
+     skipped question), in the chart's order, packed into bytes and written
+     as base64url. The leading "1" is a format version. 45 guesses make a
+     54-character code. */
+  var SKIP = 127;
+  function encode(g) {
+    var bits = 0, acc = 0, bytes = [];
+    for (var i = 0; i < N; i++) {
+      var v = (i in g) ? g[i] : SKIP;
+      acc = (acc << 7) | v; bits += 7;
+      while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 255); }
+      acc &= (1 << bits) - 1;
+    }
+    if (bits > 0) bytes.push((acc << (8 - bits)) & 255);
+    var s = btoa(String.fromCharCode.apply(null, bytes));
+    return '1' + s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decode(code) {
+    try {
+      if (!code || code.charAt(0) !== '1') return null;
+      var b = code.slice(1).replace(/-/g, '+').replace(/_/g, '/');
+      while (b.length % 4) b += '=';
+      var bin = atob(b), bits = 0, acc = 0, out = {}, n = 0;
+      for (var j = 0; j < bin.length && n < N; j++) {
+        acc = (acc << 8) | bin.charCodeAt(j); bits += 8;
+        while (bits >= 7 && n < N) {
+          bits -= 7; var v = (acc >> bits) & 127;
+          if (v <= 100) out[n] = v; else if (v !== SKIP) return null;
+          n++;
+        }
+        acc &= (1 << bits) - 1;
+      }
+      return n === N && Object.keys(out).length ? out : null;
+    } catch (e) { return null; }
+  }
+  function shareLink(g) {
+    return location.origin + location.pathname + '#r=' + encode(g);
+  }
+
+  /* ============================ theme ============================ */
+  var themeBtns = document.querySelectorAll('.theme button');
+  function setTheme(t) {
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    try { t === 'auto' ? localStorage.removeItem('bp.theme') : localStorage.setItem('bp.theme', t); } catch (e) {}
+    themeBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.t === t)); });
+  }
+  setTheme(document.documentElement.getAttribute('data-theme') || 'auto');
+  themeBtns.forEach(function (b) { b.addEventListener('click', function () { setTheme(b.dataset.t); }); });
+
+  /* ============================ screens ============================ */
+  var screens = { intro: $('intro'), quiz: $('quiz'), results: $('results') };
+  var shared = null; // guesses from a share link, when one is open
+  var gate = null;   // a share code that waits for "guess first" or "show"
+  var sharedCode = null;
+  function show(name, push) {
+    Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== name; });
+    if (name !== 'results') shared = null;
+    if (push !== false) gate = null;
+    var hash = name === 'intro' ? '' : '#' + name;
+    if (push !== false && location.hash !== hash) {
+      history.pushState(null, '', hash || location.pathname + location.search);
+    }
+    window.scrollTo(0, 0);
+    if (name === 'intro') renderIntro();
+    if (name === 'quiz') renderQ(0);
+    if (name === 'results') renderResults();
+  }
+  window.addEventListener('popstate', route);
+  window.addEventListener('hashchange', route);
+  function route() {
+    var h = location.hash.slice(1);
+    if (h.indexOf('r=') === 0) {
+      var code = h.slice(2), g = decode(code);
+      if (g) {
+        /* A shared link shows the answers, so a visitor who has not played
+           first gets the choice to guess before they see anything. */
+        if (S.seen === code || S.vs === code && S.done) {
+          gate = null;
+          Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== 'results'; });
+          shared = g; sharedCode = code; window.scrollTo(0, 0); renderResults(); return;
+        }
+        gate = code; shared = null;
+        Object.keys(screens).forEach(function (k) { screens[k].hidden = k !== 'intro'; });
+        window.scrollTo(0, 0); renderIntro(); return;
+      }
+    }
+    gate = null;
+    if (h === 'quiz' && S.order) show('quiz', false);
+    else if (h === 'results') show('results', false);
+    else show('intro', false);
+  }
+
+  /* ============================ intro ============================ */
+  function inProgress() { return S.order && !S.done && (S.i > 0 || answered() > 0); }
+  function renderIntro() {
+    var note = $('resumeNote');
+    $('introKicker').textContent = gate ? 'A friend shared their results' : '45 questions · About 3 minutes';
+    $('skip').textContent = gate ? 'Show their results now' : 'Skip to the results';
+    if (gate) {
+      $('start').textContent = 'Guess first, then compare';
+      note.hidden = false;
+      note.textContent = 'Their results show every answer. Guess first, and the answers stay hidden until the end.';
+    } else if (inProgress()) {
+      $('start').textContent = 'Continue at question ' + (S.i + 1);
+      note.hidden = false;
+      note.innerHTML = 'You have ' + answered() + ' guesses saved in this tab. <button class="link" id="restart" type="button">Start over</button>';
+      $('restart').addEventListener('click', function () { fresh(); show('quiz'); });
+    } else {
+      $('start').textContent = 'Start guessing';
+      note.hidden = true;
+    }
+  }
+  $('start').addEventListener('click', function () {
+    var code = gate;
+    if (code || !inProgress()) fresh();
+    if (code) { S.vs = code; save(); }
+    show('quiz');
+  });
+  $('skip').addEventListener('click', function () {
+    if (gate) { S.seen = gate; save(); var c = gate; gate = null; history.replaceState(null, '', '#r=' + c); route(); return; }
+    show('results');
+  });
+  $('home').addEventListener('click', function () { show('intro'); });
+
+  /* ============================ slider ============================ */
+  var slider = $('slider'), thumb = $('thumb'), fill = $('fill'), numEl = $('num');
+  var cur = null; // null = no guess yet on this question
+
+  function paint() {
+    var v = cur === null ? 50 : cur;
+    thumb.style.left = v + '%';
+    fill.style.width = v + '%';
+    slider.classList.toggle('blank', cur === null);
+    numEl.classList.toggle('blank', cur === null);
+    numEl.innerHTML = cur === null ? '?' : cur + '<small>%</small>';
+    slider.setAttribute('aria-valuenow', String(v));
+    slider.setAttribute('aria-valuetext', cur === null ? 'No guess yet' : cur + ' percent');
+    $('next').disabled = cur === null;
+    $('hint').textContent = cur === null ? 'Tap or drag the slider to guess.' : ' ';
+  }
+  function set(v) {
+    cur = Math.max(0, Math.min(100, Math.round(v)));
+    S.g[S.order[S.i]] = cur; save();
+    paint();
+  }
+  function fromX(x) {
+    var r = slider.getBoundingClientRect();
+    return ((x - r.left) / r.width) * 100;
+  }
+  slider.addEventListener('pointerdown', function (e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    slider.focus({ preventScroll: true, focusVisible: false });
+    slider.setPointerCapture(e.pointerId);
+    slider.classList.add('drag');
+    set(fromX(e.clientX));
+  });
+  slider.addEventListener('pointermove', function (e) {
+    if (!slider.hasPointerCapture(e.pointerId)) return;
+    set(fromX(e.clientX));
+  });
+  function endDrag(e) {
+    if (slider.hasPointerCapture && slider.hasPointerCapture(e.pointerId)) slider.releasePointerCapture(e.pointerId);
+    slider.classList.remove('drag');
+  }
+  slider.addEventListener('pointerup', endDrag);
+  slider.addEventListener('pointercancel', endDrag);
+  slider.addEventListener('keydown', function (e) {
+    var base = cur === null ? 50 : cur, d = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') d = cur === null ? 0 : 1;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') d = cur === null ? 0 : -1;
+    else if (e.key === 'PageUp') d = 10;
+    else if (e.key === 'PageDown') d = -10;
+    else if (e.key === 'Home') { e.preventDefault(); set(0); return; }
+    else if (e.key === 'End') { e.preventDefault(); set(100); return; }
+    if (d !== null) { e.preventDefault(); set(base + d); }
+  });
+  function nudge(d) { set((cur === null ? 50 : cur) + d); }
+  /* Hold a step button to keep counting. */
+  [['minus', -1], ['plus', 1]].forEach(function (p) {
+    var el = $(p[0]), timer = null, rep = null;
+    function stop() { clearTimeout(timer); clearInterval(rep); timer = rep = null; }
+    el.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); nudge(p[1]);
+      timer = setTimeout(function () { rep = setInterval(function () { nudge(p[1]); }, 60); }, 380);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { el.addEventListener(ev, stop); });
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nudge(p[1]); } });
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  });
+
+  /* ============================ quiz ============================ */
+  var card = $('card');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fillQ() {
+    var idx = S.order[S.i], d = DATA[idx];
+    $('qtext').textContent = d.q + '?';
+    $('count').textContent = (S.i + 1) + ' / ' + N;
+    $('bar').style.width = ((S.i) / N * 100) + '%';
+    $('back').style.visibility = S.i === 0 ? 'hidden' : 'visible';
+    $('next').textContent = S.i === N - 1 ? 'See my results' : 'Next →';
+    cur = (idx in S.g) ? S.g[idx] : null;
+    paint();
+  }
+  function renderQ(dir) {
+    if (!S.order) fresh();
+    if (S.i >= N) S.i = N - 1;
+    if (!dir || reduce) { fillQ(); return; }
+    card.classList.remove('in', 'out', 'back');
+    if (dir < 0) card.classList.add('back');
+    card.classList.add('out');
+    setTimeout(function () {
+      fillQ();
+      card.classList.remove('out');
+      void card.offsetWidth;
+      card.classList.add('in');
+    }, 150);
+  }
+  function go(d) {
+    var ni = S.i + d;
+    if (ni < 0) return;
+    if (ni >= N) { S.done = true; S.i = N - 1; save(); show('results'); return; }
+    S.i = ni; save(); renderQ(d);
+  }
+  $('next').addEventListener('click', function () { if (cur !== null) go(1); });
+  $('pass').addEventListener('click', function () {
+    delete S.g[S.order[S.i]]; save(); go(1);
+  });
+  $('back').addEventListener('click', function () { go(-1); });
+  $('finish').addEventListener('click', function () { S.done = true; save(); show('results'); });
+  document.addEventListener('keydown', function (e) {
+    if (screens.quiz.hidden) return;
+    if (e.key === 'Enter' && cur !== null && document.activeElement.tagName !== 'BUTTON') { e.preventDefault(); go(1); }
+  });
+
+  /* ============================ results ============================ */
+  var sortMode = 'truth';
+  (function scale() {
+    var s = $('scale'), h = '';
+    for (var v = 0; v <= 100; v += 10) {
+      if (v % 20 === 0 || window.innerWidth > 720) h += '<span style="left:' + v + '%">' + v + '%</span>';
+    }
+    s.innerHTML = h;
+  })();
+  document.querySelectorAll('#sortby button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      sortMode = b.dataset.s;
+      document.querySelectorAll('#sortby button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      drawRows();
+    });
+  });
+
+  function mean(a) { return a.reduce(function (s, x) { return s + x; }, 0) / a.length; }
+  function pts(v) { return (Math.round(v * 10) / 10).toFixed(1).replace(/\.0$/, ''); }
+
+  var G = {}; // the guesses on screen: your own, or a shared set
+  function renderResults() {
+    G = shared || S.g;
+    var them = !!shared;
+    var keys = Object.keys(G).map(Number).filter(function (k) { return k >= 0 && k < N; });
+    var has = keys.length > 0;
+    $('score').hidden = !has;
+    $('cta').hidden = has || them;
+    $('sharedBanner').hidden = !them || (S.done && S.vs === sharedCode);
+    $('share').hidden = them;
+    $('subYou').hidden = !has;
+    $('subYou').textContent = them ? ', and the guesses in this shared link' : ', and your own guess';
+    $('lgYou').hidden = !has;
+    $('lgYou').lastChild.textContent = them ? 'Their guess' : 'Your guess';
+    $('vhYou').textContent = them ? 'Them' : 'You';
+    $('sortby').hidden = !has;
+    document.querySelector('#sortby [data-s="miss"]').textContent = them ? 'Their miss' : 'Your miss';
+    document.querySelector('.stat .k').textContent = them ? 'Their average miss' : 'Your average miss';
+    $('vhYou').style.visibility = has ? 'visible' : 'hidden';
+    if (!has) sortMode = 'truth';
+    document.querySelectorAll('#sortby button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.s === sortMode)); });
+
+    if (has) {
+      if (!them) $('shareUrl').value = shareLink(G);
+      var my = keys.map(function (k) { return Math.abs(G[k] - DATA[k].t); });
+      var av = keys.map(function (k) { return Math.abs(DATA[k].a - DATA[k].t); });
+      var beat = keys.filter(function (k) { return Math.abs(G[k] - DATA[k].t) < Math.abs(DATA[k].a - DATA[k].t); }).length;
+      $('sYou').innerHTML = pts(mean(my)) + '<small>pts</small>';
+      $('sAvg').innerHTML = pts(mean(av)) + '<small>pts</small>';
+      $('sAvgD').textContent = keys.length === N ? 'points, on the same questions' : 'points, on the ' + keys.length + ' questions ' + (them ? 'they' : 'you') + ' answered';
+      $('sBeat').innerHTML = beat + '<small>of ' + keys.length + '</small>';
+      $('sBeatD').textContent = (them ? 'questions where their guess' : 'questions where your guess') + ' beat the average guess';
+
+      /* The pattern YouGov found: small groups guessed too big, large groups too small. */
+      var small = keys.filter(function (k) { return DATA[k].t < 50; });
+      var large = keys.filter(function (k) { return DATA[k].t >= 50; });
+      var parts = [];
+      function bias(set) { return mean(set.map(function (k) { return G[k] - DATA[k].t; })); }
+      function word(b) { return b >= 0 ? 'too high' : 'too low'; }
+      if (small.length) { var bs = bias(small); parts.push('For groups under half the country, ' + (them ? 'their' : 'your') + ' guesses were <b>' + pts(Math.abs(bs)) + ' points ' + word(bs) + '</b> on average'); }
+      if (large.length) { var bl = bias(large); parts.push('for groups over half, <b>' + pts(Math.abs(bl)) + ' points ' + word(bl) + '</b>'); }
+      var best = keys.slice().sort(function (x, y) { return Math.abs(G[x] - DATA[x].t) - Math.abs(G[y] - DATA[y].t); });
+      var b0 = best[0], w0 = best[best.length - 1];
+      var txt = parts.length ? parts.join(', and ') + '. ' : '';
+      if (parts.length === 1) txt = parts[0] + '. ';
+      txt += (them ? 'Their' : 'Your') + ' closest guess: adults who ' + DATA[b0].q + ' (' + (them ? 'they' : 'you') + ' said ' + G[b0] + '%, true ' + fmt(DATA[b0].t) + '%). ';
+      if (w0 !== b0) txt += (them ? 'Their' : 'Your') + ' furthest: adults who ' + DATA[w0].q + ' (' + (them ? 'they' : 'you') + ' said ' + G[w0] + '%, true ' + fmt(DATA[w0].t) + '%).';
+      $('verdict').innerHTML = txt.charAt(0).toUpperCase() + txt.slice(1);
+    }
+    drawRows();
+  }
+
+  function drawRows() {
+    var idx = DATA.map(function (_, i) { return i; });
+    if (sortMode === 'miss') {
+      idx.sort(function (x, y) {
+        var mx = (x in G) ? Math.abs(G[x] - DATA[x].t) : -1;
+        var my = (y in G) ? Math.abs(G[y] - DATA[y].t) : -1;
+        return my - mx;
+      });
+    }
+    var hasAny = Object.keys(G).length > 0;
+    var html = idx.map(function (i) {
+      var d = DATA[i], y = (i in G) ? G[i] : null;
+      var lo = Math.min(d.t, d.a), hi = Math.max(d.t, d.a);
+      var you = y === null ? '' : '<i class="m you" style="left:' + y + '%"></i>';
+      var youV = !hasAny ? '' : (y === null ? '<span class="none" title="Skipped">–</span>' : '<span class="you">' + y + '</span>');
+      var aria = label(d) + ': true ' + fmt(d.t) + ' percent, average guess ' + d.a + ' percent' + (y === null ? '' : (shared ? ', their guess ' : ', your guess ') + y + ' percent');
+      return '<li class="row" aria-label="' + aria.replace(/"/g, '&quot;') + '">' +
+        '<div class="lab">' + label(d) + '</div>' +
+        '<div class="lane" aria-hidden="true">' +
+          '<i class="gap" style="left:' + lo + '%;width:' + (hi - lo) + '%"></i>' +
+          '<i class="m avg" style="left:' + d.a + '%"></i>' +
+          '<i class="m truth" style="left:' + d.t + '%"></i>' + you +
+        '</div>' +
+        '<div class="vals" aria-hidden="true">' + youV +
+          '<span class="avg">' + d.a + '</span><span class="truth">' + fmt(d.t) + '</span></div>' +
+      '</li>';
+    }).join('');
+    $('rows').innerHTML = html;
+    $('retake').textContent = shared ? 'Take the quiz' : 'Take it again';
+    $('compare').hidden = !!shared || !S.vs;
+  }
+
+  function startOver() { fresh(); show('quiz'); }
+  $('retake').addEventListener('click', startOver);
+  $('ctaStart').addEventListener('click', startOver);
+  $('sharedStart').addEventListener('click', function () {
+    var c = location.hash.indexOf('#r=') === 0 ? location.hash.slice(3) : null;
+    fresh(); if (c) { S.vs = c; S.seen = c; save(); }
+    show('quiz');
+  });
+  $('compare').addEventListener('click', function () {
+    S.seen = S.vs; save(); location.hash = 'r=' + S.vs;
+  });
+
+  /* ============================ share buttons ============================ */
+  var copyBtn = $('copy'), urlBox = $('shareUrl');
+  function copied(ok) {
+    copyBtn.textContent = ok ? 'Copied ✓' : 'Select and copy';
+    copyBtn.classList.toggle('ok', ok);
+    clearTimeout(copied.t);
+    copied.t = setTimeout(function () { copyBtn.textContent = 'Copy link'; copyBtn.classList.remove('ok'); }, 2200);
+  }
+  function legacyCopy() {
+    urlBox.focus(); urlBox.select(); urlBox.setSelectionRange(0, urlBox.value.length);
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    return ok;
+  }
+  copyBtn.addEventListener('click', function () {
+    var url = urlBox.value;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () { copied(true); }, function () { copied(legacyCopy()); });
+    } else copied(legacyCopy());
+  });
+  urlBox.addEventListener('focus', function () { urlBox.select(); });
+  if (navigator.share) {
+    $('native').hidden = false;
+    $('native').addEventListener('click', function () {
+      navigator.share({ title: 'My Ballpark results', text: 'How well do you know America? Here are my guesses.', url: urlBox.value }).catch(function () {});
+    });
+  }
+
+  /* For the browser test suite only. */
+  window.__bp = { DATA: DATA, S: function () { return S; }, encode: encode, decode: decode };
+
+  route();
+})();
+</script>
+</body>
+</html>

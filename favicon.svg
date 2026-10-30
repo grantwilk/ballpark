@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Ballpark">
+  <!-- An opaque badge, so the icon stays legible on any tab bar. A ballpark
+       diamond with the red "true figure" dot from the chart at its center. -->
+  <style>
+    .badge { fill: #1A1B20 }
+    .line  { fill: none; stroke: #F0EFEA }
+    .dot   { fill: #D33A1F }
+    @media (prefers-color-scheme: dark) {
+      .badge { fill: #F0EFEA }
+      .line  { stroke: #1A1B20 }
+      .dot   { fill: #D33A1F }
+    }
+  </style>
+  <rect class="badge" width="32" height="32" rx="7"/>
+  <path class="line" stroke-width="2.6" stroke-linejoin="round" d="M16 6.5 25.5 16 16 25.5 6.5 16Z"/>
+  <circle class="dot" cx="16" cy="16" r="3.6"/>
+</svg>
